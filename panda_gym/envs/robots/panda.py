@@ -23,6 +23,7 @@ class Panda(PyBulletRobot):
         sim: PyBullet,
         block_gripper: bool = False,
         base_position: Optional[np.ndarray] = None,
+        random_init_pos: bool = False,
         control_type: str = "ee",
     ) -> None:
         base_position = base_position if base_position is not None else np.zeros(3)
@@ -44,6 +45,16 @@ class Panda(PyBulletRobot):
         self.fingers_indices = np.array([9, 10])
         # self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
         self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.00])
+
+        self.random_init_pos = random_init_pos
+        # last two joint are not controlled 
+        self.init_random_range = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+
+        # joint limits
+        # lower, upper = self.sim.get_joint_limits(self.body_name, self.joint_indices)
+        self.joint_limit_lower = np.array([-2.9671, -1.8326, -2.9671, -3.1416, -2.9671, -0.0873, -2.9671])  # , 0.0, 0.0])
+        self.joint_limit_upper = np.array([2.9671, 1.8326, 2.9671, 0., 2.9671, 3.8223, 2.9671])  # , 0.04, 0.04]])
+
         self.ee_link = 11
         self.sim.set_lateral_friction(self.body_name, self.fingers_indices[0], lateral_friction=1.0)
         self.sim.set_lateral_friction(self.body_name, self.fingers_indices[1], lateral_friction=1.0)
@@ -120,11 +131,25 @@ class Panda(PyBulletRobot):
         return observation
 
     def reset(self) -> None:
-        self.set_joint_neutral()
+        if self.random_init_pos:
+            self.set_joint_random()
+        else:
+            self.set_joint_neutral()
 
     def set_joint_neutral(self) -> None:
         """Set the robot to its neutral pose."""
         self.set_joint_angles(self.neutral_joint_values)
+
+    def set_joint_random(self) -> None:
+        """Set the robot to a random joint pos near the neutral pose."""
+        # add noise to the neutral position
+        noise = np.random.uniform(low=-self.random_init_pos, high=self.random_init_pos)
+        joint_values = self.neutral_joint_values + noise
+        # clip joint limits
+        joint_values = np.clip(joint_values, self.joint_limit_lower, self.joint_limit_upper)
+
+        self.set_joint_angles(joint_values)
+
 
     def get_fingers_width(self) -> float:
         """Get the distance between the fingers."""
@@ -139,3 +164,6 @@ class Panda(PyBulletRobot):
     def get_ee_velocity(self) -> np.ndarray:
         """Returns the velocity of the end-effector as (vx, vy, vz)"""
         return self.get_link_velocity(self.ee_link)
+
+    def get_joint_limits(self) -> (np.ndarray, np.ndarray):
+        return self.sim.get_joint_limits(self.body_name, self.joint_indices)

@@ -295,6 +295,25 @@ class PyBullet:
         """
         return self.physics_client.getJointState(self._bodies_idx[body], joint)[1]
 
+    def get_joint_limits(self, body_name, joint_indices):
+        """Get lower and upper joint limits.
+
+        Args:
+            body_name (str): Body unique name.
+            joint_indices (list(int)): Joint indexes in the body
+
+        Returns:
+            np.ndarray, np.ndarray
+        """
+        lower = np.zeros(len(joint_indices))
+        upper = np.zeros(len(joint_indices))
+        for i, j_id in enumerate(joint_indices):
+            joint_info = self.physics_client.getJointInfo(self._bodies_idx[body_name], j_id)
+            lower[i] = joint_info[8]
+            upper[i] = joint_info[9]
+
+        return lower, upper
+
     def set_base_pose(self, body: str, position: np.ndarray, orientation: np.ndarray) -> None:
         """Set the position of the body.
 

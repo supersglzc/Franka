@@ -55,7 +55,8 @@ class Reach(Task):
                         mass=0,
                         collision=True)
 
-    def create_cube(self, position, halfExtents, mass=0, collision=True):
+    @staticmethod
+    def create_cube(position, halfExtents, mass=0, collision=True):
         visual_id = p.createVisualShape(shapeType=p.GEOM_BOX,
                                         halfExtents=halfExtents,
                                         rgbaColor=[1, 0, 1, 1],
@@ -66,18 +67,18 @@ class Reach(Task):
 
         if collision:
             p.createMultiBody(baseMass=mass,
-                            baseInertialFramePosition=[0, 0, 0],
-                            baseCollisionShapeIndex=collision_id,
-                            baseVisualShapeIndex=visual_id,
-                            basePosition=position,
-                            useMaximalCoordinates=True)
+                              baseInertialFramePosition=[0, 0, 0],
+                              baseCollisionShapeIndex=collision_id,
+                              baseVisualShapeIndex=visual_id,
+                              basePosition=position,
+                              useMaximalCoordinates=True)
         else:
             p.createMultiBody(baseMass=mass,
-                            baseInertialFramePosition=[0, 0, 0],
-                            # baseCollisionShapeIndex=collision_id,
-                            baseVisualShapeIndex=visual_id,
-                            basePosition=position,
-                            useMaximalCoordinates=True)
+                              baseInertialFramePosition=[0, 0, 0],
+                              # baseCollisionShapeIndex=collision_id,
+                              baseVisualShapeIndex=visual_id,
+                              basePosition=position,
+                              useMaximalCoordinates=True)
 
     def get_obs(self) -> np.ndarray:
         return np.array([])  # no task-specific observation
