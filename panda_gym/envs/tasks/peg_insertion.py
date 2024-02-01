@@ -6,6 +6,7 @@ import pybullet as p
 from panda_gym.envs.core import Task
 from panda_gym.utils import distance
 import panda_gym
+from copy import deepcopy
 
 
 class PegInsertion(Task):
@@ -27,11 +28,11 @@ class PegInsertion(Task):
         # module_path = os.path.dirname(os.path.abspath(panda_gym.__file__))
         # path = os.path.dirname(os.getcwd()) + "/"
         # self.hole_file = os.path.dirname(os.getcwd()) + "/panda_gym/assets/objects/Hole/Hole.urdf"
-        self.hole_file = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/objects/Hole/Hole.urdf"
+        self.hole_file = "/home/supersglzc/code/Franka/panda_gym/assets/objects/Hole/Hole.urdf"
         z_hole = 0.03
-
+        self.z_hole_offset = -0.02
         # add hole here!
-        self.init_hole_poses = [np.array([0.1, 0.0, z_hole])]
+        self.init_hole_poses = [np.array([0.05, 0.0, z_hole])]
         self.r_pos_hole = 0.1
         self.random_hole = False
         # for internal usage
@@ -58,7 +59,7 @@ class PegInsertion(Task):
         #     radius=self.distance_threshold,
         #     mass=0.0,
         #     ghost=True,
-        #     position=self.init_hole_poses[0],
+        #     position=self.get_goal(),
         #     rgba_color=np.array([0.1, 0.9, 0.1, 0.3]),
         # )
 
@@ -77,11 +78,10 @@ class PegInsertion(Task):
             self.body_holes.append(hole_name)
             self.target_hole_poses.append(init_target_pos)
 
-        self._reset_holes()
 
     def _reset_holes(self, randomize=False):
         # update target
-        self.target_hole_poses = self.init_hole_poses
+        # self.target_hole_poses = self.init_hole_poses
         targets = []
         if randomize:
             for i in range(len(self.init_hole_poses)):
@@ -89,10 +89,14 @@ class PegInsertion(Task):
                 noise[2] = 0  # no height randomization
                 targets.append(self.init_hole_poses[i] + noise)
         else:
-            targets.append(self.init_hole_poses)
+            targets = deepcopy(self.init_hole_poses)
         # reset holes
-        for body, target in zip(self.body_holes, self.target_hole_poses):
+        for body, target in zip(self.body_holes, targets):
             self.sim.set_base_pose(body=body,  position=target, orientation=self.hole_ori)
+        # import pdb; pdb.set_trace()
+        # make goal lower than Urdf object 
+        # for tar in targets:
+        #     tar[2] += self.z_hole_offset
 
         return targets
 
@@ -149,13 +153,16 @@ class PegInsertion(Task):
         return self.get_ee_position()
 
     def get_goal(self):
-        return self.target_hole_poses[0]
+        goal = self.target_hole_poses[0]
+        goal[2] += self.z_hole_offset
+        return goal
 
     def reset(self) -> None:
         # self.goal = self._sample_goal()
         # robot gets seperate reset
         # also resets the hole position in self.taregt
-        self.target_hole_poses = self._reset_holes(randomize=True)
+        # import pdb; pdb.set_trace()
+        self.target_hole_poses = self._reset_holes(randomize=False)
         # self.sim.set_base_pose("target", self.goal, np.array([0.0, 0.0, 0.0, 1.0]))
         # peg position
         # self.sim.create_sphere(
@@ -179,8 +186,22 @@ class PegInsertion(Task):
         return np.array(d < self.distance_threshold, dtype=bool)
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
-        d = distance(achieved_goal, desired_goal)
-        if self.reward_type == "sparse":
-            return -np.array(d > self.distance_threshold, dtype=np.float32)
+        special_reward = False
+        if not special_reward:
+            d = distance(achieved_goal, desired_goal)
+            if self.reward_type == "sparse":
+                return -np.array(d > self.distance_threshold, dtype=np.float32)
+            else:
+                return -d.astype(np.float32)
         else:
-            return -d.astype(np.float32)
+            # special reward from minitouch 
+            if distance(achieved_goal[0:2], desired_goal[0:2]) < self.distance_threshold:
+                if achieved_goal[2] <= self.distance_threshold:
+                    finish_reward = 1
+                else:
+                    finish_reward = 0
+                insertion_reward = 1*(0.2 - achieved_goal[2])
+                return finish_reward + insertion_reward
+            else:
+                align_penalty = 5*(self.distance_threshold - distance(achieved_goal[0:2], desired_goal[0:2]))
+                return align_penalty

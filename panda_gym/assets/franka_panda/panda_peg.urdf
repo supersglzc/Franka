@@ -457,7 +457,7 @@
     name="PegPosition"
     type="fixed">
     <origin
-      xyz="0 0.05 0"
+      xyz="0 0.02 0"
       rpy="0 0 0" />
     <parent
       link="Insertion" />

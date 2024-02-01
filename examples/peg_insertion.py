@@ -1,3 +1,4 @@
+
 import gymnasium as gym
 import time
 
@@ -13,9 +14,9 @@ env = gym.make(env_name, render_mode=render_mode)
 
 observation, info = env.reset()
 
-for _ in range(1000):
-    action = env.action_space.sample()
-    # action = np.array([0]*7)
+for _ in range(10000):
+    # action = env.action_space.sample()
+    action = np.array([0]*7)
     observation, reward, terminated, truncated, info = env.step(action)
     time.sleep(1/60)
     print(f"reward: {reward}")
