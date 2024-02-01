@@ -686,3 +686,10 @@ class PyBullet:
             linkIndex=link,
             spinningFriction=spinning_friction,
         )
+
+    def get_info(self, body):
+        num_joints = self.physics_client.getNumJoints(self._bodies_idx[body])
+        for i in range(num_joints):
+            joint_info = self.physics_client.getJointInfo(self._bodies_idx[body], i)
+            state_info = self.physics_client.getLinkState(self._bodies_idx[body], i)
+            print(f"index: {joint_info[0]}, Name: {joint_info[1]},position: {state_info[0]}")
