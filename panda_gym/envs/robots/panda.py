@@ -2,9 +2,11 @@ from typing import Optional
 
 import numpy as np
 from gymnasium import spaces
-
+import os
+import panda_gym
 from panda_gym.envs.core import PyBulletRobot
 from panda_gym.pybullet import PyBullet
+import pybullet as p
 
 
 class Panda(PyBulletRobot):
@@ -24,6 +26,7 @@ class Panda(PyBulletRobot):
         block_gripper: bool = False,
         base_position: Optional[np.ndarray] = None,
         random_init_pos: bool = False,
+        has_peg: bool = False,
         control_type: str = "ee",
     ) -> None:
         base_position = base_position if base_position is not None else np.zeros(3)
@@ -32,34 +35,69 @@ class Panda(PyBulletRobot):
         n_action = 3 if self.control_type == "ee" else 7  # control (x, y z) if "ee", else, control the 7 joints
         n_action += 0 if self.block_gripper else 1
         action_space = spaces.Box(-1.0, 1.0, shape=(n_action,), dtype=np.float32)
-        super().__init__(
-            sim,
-            body_name="panda",
-            file_name="franka_panda/panda.urdf",
-            base_position=base_position,
-            action_space=action_space,
-            joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
-            joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
-        )
+        self.has_peg = has_peg
 
+        if self.has_peg:
+            file_name_peg = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/franka_panda/panda_peg.urdf"
+            super().__init__(
+                sim,
+                body_name="panda",
+                file_name=file_name_peg,  # "franka_panda/panda.urdf",
+                base_position=base_position,
+                action_space=action_space,
+                joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
+                joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
+            )
+            self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
+            # self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])
+            self.ee_link = 13
+        else:
+            super().__init__(
+                sim,
+                body_name="panda",
+                file_name="franka_panda/panda.urdf",
+                base_position=base_position,
+                action_space=action_space,
+                joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
+                joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
+            )
+            self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
+            # self.neutral_joint_values = np.array([0.00, -0.5, 0.00, -2.2, 0.00, 1.8, 0.79, 0.025, 0.025])
+            self.ee_link = 11
         self.fingers_indices = np.array([9, 10])
-        # self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
-        self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.00])
 
         self.random_init_pos = random_init_pos
-        # last two joint are not controlled 
+        # last two joint are not controlled
+        # TODO: tune starting pos randomization
         self.init_random_range = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
 
-        # joint limits
+        # joint limits from urdf
         # lower, upper = self.sim.get_joint_limits(self.body_name, self.joint_indices)
         self.joint_limit_lower = np.array([-2.9671, -1.8326, -2.9671, -3.1416, -2.9671, -0.0873, -2.9671])  # , 0.0, 0.0])
         self.joint_limit_upper = np.array([2.9671, 1.8326, 2.9671, 0., 2.9671, 3.8223, 2.9671])  # , 0.04, 0.04]])
 
-        self.ee_link = 11
+        # self.sim.get_info("panda")
+
         self.sim.set_lateral_friction(self.body_name, self.fingers_indices[0], lateral_friction=1.0)
         self.sim.set_lateral_friction(self.body_name, self.fingers_indices[1], lateral_friction=1.0)
         self.sim.set_spinning_friction(self.body_name, self.fingers_indices[0], spinning_friction=0.001)
         self.sim.set_spinning_friction(self.body_name, self.fingers_indices[1], spinning_friction=0.001)
+
+        # add peg to panda
+        from pybullet_utils import urdfEditor as ed
+        # ang = -np.pi * 0.5
+        # # peg in EE of robot (fixed)
+        # peg_ori = p.getQuaternionFromEuler([ang, 0, 0])
+        # module_path = os.path.dirname(os.path.abspath(panda_gym.__file__))
+        # self.object_file_path = module_path + "/assets/objects/Peg/Peg.urdf"
+        # self.get_ee_position()
+        # self.sim.loadURDF("peg", fileName=self.object_file_path, basePosition=(
+        #         self.get_ee_position()[0], self.get_ee_position()[1], self.get_ee_position()[2] + 0.03),
+        #                                     baseOrientation=(peg_ori[0], peg_ori[1], peg_ori[2], peg_ori[3]),
+        #                                     globalScaling=1)
+
+        # p.changeDynamics(self.objectUid, -1, 1, lateralFriction=50, rollingFriction=50, spinningFriction=50, )
+        # p.changeDynamics(self.objectUid, 0, 1, lateralFriction=0., rollingFriction=0., spinningFriction=0., )
 
     def set_action(self, action: np.ndarray) -> None:
         action = action.copy()  # ensure action don't change
@@ -72,7 +110,7 @@ class Panda(PyBulletRobot):
             target_arm_angles = self.arm_joint_ctrl_to_target_arm_angles(arm_joint_ctrl)
 
         if self.block_gripper:
-            target_fingers_width = 0
+            target_fingers_width = 0.03  # 0
         else:
             fingers_ctrl = action[-1] * 0.2  # limit maximum change in position
             fingers_width = self.get_fingers_width()

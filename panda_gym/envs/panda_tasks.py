@@ -190,6 +190,7 @@ class PandaReachEnv(RobotTaskEnv):
         render_mode: str = "rgb_array",
         reward_type: str = "sparse",
         control_type: str = "ee",
+        random_init_pos: bool = False,
         renderer: str = "Tiny",
         render_width: int = 720,
         render_height: int = 480,
@@ -200,7 +201,7 @@ class PandaReachEnv(RobotTaskEnv):
         render_roll: float = 0,
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
-        robot = Panda(sim, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
+        robot = Panda(sim, random_init_pos=random_init_pos, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
         task = Reach(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)
         super().__init__(
             robot,
@@ -340,6 +341,7 @@ class PandaPegInsertionEnv(RobotTaskEnv):
         render_mode: str = "rgb_array",
         reward_type: str = "sparse",
         control_type: str = "ee",
+        random_init_pos: bool = False,
         renderer: str = "Tiny",
         render_width: int = 720,
         render_height: int = 480,
@@ -350,8 +352,9 @@ class PandaPegInsertionEnv(RobotTaskEnv):
         render_roll: float = 0,
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
-        robot = Panda(sim, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
-        task = PegInsertion(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)
+        # TODO: set random init pos here
+        robot = Panda(sim, random_init_pos=False, has_peg=True, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
+        task = PegInsertion(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position, distance_threshold=0.05)
         super().__init__(
             robot,
             task,
