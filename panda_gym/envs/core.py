@@ -193,6 +193,9 @@ class Task(ABC):
     def compute_reward(self, achieved_goal: np.ndarray, desired_goal: np.ndarray, info: Dict[str, Any] = {}) -> np.ndarray:
         """Compute reward associated to the achieved and the desired goal."""
 
+    def pre_sim_step(self):
+        pass
+
 
 class RobotTaskEnv(gym.Env):
     """Robotic task goal env, as the junction of a task and a robot.
@@ -315,6 +318,7 @@ class RobotTaskEnv(gym.Env):
 
     def step(self, action: np.ndarray) -> Tuple[Dict[str, np.ndarray], float, bool, bool, Dict[str, Any]]:
         self.robot.set_action(action)
+        self.task.pre_sim_step()
         self.sim.step()
         observation = self._get_obs()
         # An episode is terminated iff the agent has reached the target

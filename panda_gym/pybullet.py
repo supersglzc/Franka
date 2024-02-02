@@ -692,4 +692,14 @@ class PyBullet:
         for i in range(num_joints):
             joint_info = self.physics_client.getJointInfo(self._bodies_idx[body], i)
             state_info = self.physics_client.getLinkState(self._bodies_idx[body], i)
-            print(f"index: {joint_info[0]}, Name: {joint_info[1]},position: {state_info[0]}")
+            print(f"index: {joint_info[0]}, Name: {joint_info[1]}, joint_type: {joint_info[2]}, position: {state_info[0]}")
+            print(f"lower_limit: {joint_info[8]}, upper_limit: {joint_info[9]}")
+
+    def change_visual(self, body, link, color):
+        self.physics_client.changeVisualShape(self._bodies_idx[body], link,
+                                              rgbaColor=color)
+
+    def changeDynamics(self, body, joint, linearDamping=0, angularDamping=0, jointDamping=10):
+        self.physics_client.changeDynamics(self._bodies_idx["door"], linkIndex=joint,
+                                           linearDamping=linearDamping, angularDamping=angularDamping,
+                                           jointDamping=jointDamping)

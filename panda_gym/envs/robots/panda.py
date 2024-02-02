@@ -29,6 +29,7 @@ class Panda(PyBulletRobot):
         base_position: Optional[np.ndarray] = None,
         random_init_pos: bool = False,
         has_peg: bool = False,
+        door: bool = False,
         control_type: str = "ee",
     ) -> None:
         base_position = base_position if base_position is not None else np.zeros(3)
@@ -38,7 +39,7 @@ class Panda(PyBulletRobot):
         n_action += 0 if self.block_gripper else 1
         action_space = spaces.Box(-1.0, 1.0, shape=(n_action,), dtype=np.float32)
         self.has_peg = has_peg
-        print(MODULE_PATH)
+        # print(MODULE_PATH)
         if self.has_peg:
             file_name_peg = MODULE_PATH + "/assets/franka_panda/panda_peg.urdf"
             super().__init__(
@@ -53,6 +54,19 @@ class Panda(PyBulletRobot):
             self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
             # self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])
             self.ee_link = 14
+        elif door:
+            super().__init__(
+                sim,
+                body_name="panda",
+                file_name="franka_panda/panda.urdf",
+                base_position=base_position,
+                action_space=action_space,
+                joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
+                joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
+            )
+            self.neutral_joint_values = np.array([0.00, 0.41, 0.0, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
+            # self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])
+            self.ee_link = 11
         else:
             super().__init__(
                 sim,
