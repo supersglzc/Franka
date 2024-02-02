@@ -7,7 +7,7 @@ with open(os.path.join(os.path.dirname(__file__), "version.txt"), "r") as file_h
 
 ENV_IDS = []
 
-for task in ["Reach", "Slide", "Push", "PickAndPlace", "Stack", "Flip", "PegInsertion"]:
+for task in ["Reach", "Slide", "Push", "PickAndPlace", "Stack", "Flip", "PegInsertion", "Door"]:
     for reward_type in ["sparse", "dense"]:
         for control_type in ["ee", "joints"]:
 
