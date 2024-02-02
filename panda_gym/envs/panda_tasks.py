@@ -353,8 +353,8 @@ class PandaPegInsertionEnv(RobotTaskEnv):
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: set random init pos here
-        robot = Panda(sim, random_init_pos=False, has_peg=True, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
-        task = PegInsertion(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position, distance_threshold=0.02)
+        robot = Panda(sim, random_init_pos=True, has_peg=True, block_gripper=True, base_position=np.array([-0.6, 0.0, 0.0]), control_type=control_type)
+        task = PegInsertion(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position, distance_threshold=0.03)  # 0.045
         super().__init__(
             robot,
             task,

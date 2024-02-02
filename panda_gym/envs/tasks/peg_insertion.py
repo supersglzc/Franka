@@ -28,11 +28,12 @@ class PegInsertion(Task):
         # module_path = os.path.dirname(os.path.abspath(panda_gym.__file__))
         # path = os.path.dirname(os.getcwd()) + "/"
         # self.hole_file = os.path.dirname(os.getcwd()) + "/panda_gym/assets/objects/Hole/Hole.urdf"
-        self.hole_file = "/home/supersglzc/code/Franka/panda_gym/assets/objects/Hole/Hole.urdf"
+        self.hole_file = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/objects/Hole/Hole.urdf"
         z_hole = 0.03
         self.z_hole_offset = -0.02
         # add hole here!
-        self.init_hole_poses = [np.array([0.05, 0.0, z_hole])]
+        self.init_hole_poses = [np.array([0.05, 0.15, z_hole]),
+                                np.array([0.05, -0.15, z_hole])]
         self.r_pos_hole = 0.1
         self.random_hole = False
         # for internal usage
@@ -44,7 +45,7 @@ class PegInsertion(Task):
 
         with self.sim.no_rendering():
             self._create_scene()
-
+        self.once = True  # TODO: delete me
 
 
     def _create_scene(self) -> None:
@@ -153,8 +154,10 @@ class PegInsertion(Task):
         return self.get_ee_position()
 
     def get_goal(self):
-        goal = self.target_hole_poses[0]
-        goal[2] += self.z_hole_offset
+        # TODO: goal is hardcoded, atm
+        # goal = self.target_hole_poses[0]
+        goal = np.array([0.05, 0.15, 0.01, 0.05, -0.15, 0.01])
+        # goal[2] += self.z_hole_offset
         return goal
 
     def reset(self) -> None:
@@ -182,17 +185,43 @@ class PegInsertion(Task):
     #     return goal
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
-        d = distance(achieved_goal, desired_goal)
-        return np.array(d < self.distance_threshold, dtype=bool)
+        d_1 = distance(achieved_goal, desired_goal[:3])
+        d_2 = distance(achieved_goal, desired_goal[-3:])
+        d_close = min(d_1, d_2)
+        return np.array(d_close < self.distance_threshold, dtype=bool)
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
         special_reward = False
+
+        # if self.once:
+        #     self.once =False
+        #     self.sim.create_sphere(
+        #         body_name="arch",
+        #         radius=0.05,
+        #         mass=0.0,
+        #         ghost=True,
+        #         position=achieved_goal,
+        #         rgba_color=np.array([0.9, 0.1, 0.1, 0.3]),
+        #     )
+        #
+        #     self.sim.create_sphere(
+        #         body_name="desit",
+        #         radius=self.distance_threshold,
+        #         mass=0.0,
+        #         ghost=True,
+        #         position=desired_goal,
+        #         rgba_color=np.array([0.1, 0.9, 0.1, 0.3]),
+        #     )
+
+
         if not special_reward:
-            d = distance(achieved_goal, desired_goal)
+            d_1 = distance(achieved_goal, desired_goal[:3])
+            d_2 = distance(achieved_goal, desired_goal[-3:])
+            d_close = min(d_1, d_2)
             if self.reward_type == "sparse":
-                return -np.array(d > self.distance_threshold, dtype=np.float32)
+                return -np.array(d_close > self.distance_threshold, dtype=np.float32)
             else:
-                return -d.astype(np.float32)
+                return -d_close.astype(np.float32)
         else:
             # special reward from minitouch 
             if distance(achieved_goal[0:2], desired_goal[0:2]) < self.distance_threshold:

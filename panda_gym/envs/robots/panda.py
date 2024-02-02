@@ -38,7 +38,7 @@ class Panda(PyBulletRobot):
         self.has_peg = has_peg
 
         if self.has_peg:
-            file_name_peg = "/home/supersglzc/code/Franka/panda_gym/assets/franka_panda/panda_peg.urdf"
+            file_name_peg = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/franka_panda/panda_peg.urdf"
             super().__init__(
                 sim,
                 body_name="panda",
@@ -70,12 +70,12 @@ class Panda(PyBulletRobot):
         self.random_init_pos = random_init_pos
         # last two joint are not controlled
         # TODO: tune starting pos randomization
-        self.init_random_range = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1])
+        self.init_random_range = np.array([0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.0, 0.0])
 
         # joint limits from urdf
         # lower, upper = self.sim.get_joint_limits(self.body_name, self.joint_indices)
-        self.joint_limit_lower = np.array([-2.9671, -1.8326, -2.9671, -3.1416, -2.9671, -0.0873, -2.9671])  # , 0.0, 0.0])
-        self.joint_limit_upper = np.array([2.9671, 1.8326, 2.9671, 0., 2.9671, 3.8223, 2.9671])  # , 0.04, 0.04]])
+        self.joint_limit_lower = np.array([-2.9671, -1.8326, -2.9671, -3.1416, -2.9671, -0.0873, -2.9671, 0.0, 0.0])
+        self.joint_limit_upper = np.array([2.9671, 1.8326, 2.9671, 0., 2.9671, 3.8223, 2.9671, 0.04, 0.04])
 
         # self.sim.get_info("panda")
 
@@ -182,7 +182,7 @@ class Panda(PyBulletRobot):
     def set_joint_random(self) -> None:
         """Set the robot to a random joint pos near the neutral pose."""
         # add noise to the neutral position
-        noise = np.random.uniform(low=-self.random_init_pos, high=self.random_init_pos)
+        noise = np.random.uniform(low=-self.init_random_range, high=self.init_random_range)
         joint_values = self.neutral_joint_values + noise
         # clip joint limits
         joint_values = np.clip(joint_values, self.joint_limit_lower, self.joint_limit_upper)
