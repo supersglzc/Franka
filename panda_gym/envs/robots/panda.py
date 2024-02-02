@@ -8,6 +8,8 @@ from panda_gym.envs.core import PyBulletRobot
 from panda_gym.pybullet import PyBullet
 import pybullet as p
 
+MODULE_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
 
 class Panda(PyBulletRobot):
     """Panda robot in PyBullet.
@@ -36,9 +38,9 @@ class Panda(PyBulletRobot):
         n_action += 0 if self.block_gripper else 1
         action_space = spaces.Box(-1.0, 1.0, shape=(n_action,), dtype=np.float32)
         self.has_peg = has_peg
-
+        print(MODULE_PATH)
         if self.has_peg:
-            file_name_peg = "panda_gym/assets/franka_panda/panda_peg.urdf"
+            file_name_peg = MODULE_PATH + "/assets/franka_panda/panda_peg.urdf"
             super().__init__(
                 sim,
                 body_name="panda",

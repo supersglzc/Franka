@@ -8,6 +8,10 @@ from panda_gym.utils import distance
 import panda_gym
 from copy import deepcopy
 
+import os.path
+
+MODULE_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
 
 class PegInsertion(Task):
     def __init__(
@@ -28,7 +32,8 @@ class PegInsertion(Task):
         # module_path = os.path.dirname(os.path.abspath(panda_gym.__file__))
         # path = os.path.dirname(os.getcwd()) + "/"
         # self.hole_file = os.path.dirname(os.getcwd()) + "/panda_gym/assets/objects/Hole/Hole.urdf"
-        self.hole_file = "panda_gym/assets/objects/Hole/Hole.urdf"
+        # print(MODULE_PATH)
+        self.hole_file = MODULE_PATH + "/assets/objects/Hole/Hole.urdf"
         z_hole = 0.03
         self.z_hole_offset = -0.02
         # add hole here!
