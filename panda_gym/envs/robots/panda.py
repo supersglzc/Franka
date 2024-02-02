@@ -38,7 +38,7 @@ class Panda(PyBulletRobot):
         self.has_peg = has_peg
 
         if self.has_peg:
-            file_name_peg = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/franka_panda/panda_peg.urdf"
+            file_name_peg = "panda_gym/assets/franka_panda/panda_peg.urdf"
             super().__init__(
                 sim,
                 body_name="panda",

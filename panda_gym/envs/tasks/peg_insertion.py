@@ -28,7 +28,7 @@ class PegInsertion(Task):
         # module_path = os.path.dirname(os.path.abspath(panda_gym.__file__))
         # path = os.path.dirname(os.getcwd()) + "/"
         # self.hole_file = os.path.dirname(os.getcwd()) + "/panda_gym/assets/objects/Hole/Hole.urdf"
-        self.hole_file = "/home/rickmer/Documents/Diffusion_RL/code/Franka/panda_gym/assets/objects/Hole/Hole.urdf"
+        self.hole_file = "panda_gym/assets/objects/Hole/Hole.urdf"
         z_hole = 0.03
         self.z_hole_offset = -0.02
         # add hole here!
