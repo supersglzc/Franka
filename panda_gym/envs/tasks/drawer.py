@@ -63,10 +63,10 @@ class Drawer(Task):
         # else:
         init_drawer_joint_state = 0.15  # 0.7
 
-        self.sim.set_joint_angle(body="door", joint=0, angle=init_drawer_joint_state)
+        self.sim.set_joint_angle(body="drawer", joint=0, angle=init_drawer_joint_state)
 
     def _get_drawer_joint_pos(self):
-        j_pos = self.sim.get_joint_angle("door", 0)
+        j_pos = self.sim.get_joint_angle("drawer", 0)
         return j_pos
 
     def _get_drawer_angle(self):

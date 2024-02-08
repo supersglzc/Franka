@@ -9,7 +9,7 @@ import os
 MODULE_PATH = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
 
-class Drawer(Task):
+class DrawerMulti(Task):
     def __init__(
         self,
         sim,
@@ -21,11 +21,31 @@ class Drawer(Task):
         super().__init__(sim)
         self.reward_type = reward_type
         # self.distance_threshold = distance_threshold
-        self.get_ee_position = get_ee_position
+        self.get_ee_position = get_ee_position  # that's a method
+
         # drawer
-        self.drawer_file_path = MODULE_PATH + "/assets/objects/cabinet/drawer_1.urdf"
-        # door
+        self.drawer_setting = 1
+        # drawer setup here
+
         self.drawer_joint = 1
+        self.drawer_file_path = MODULE_PATH + "/assets/objects/cabinet/drawer_1.urdf"
+
+        if self.drawer_setting == 1:
+            self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
+            self.drawer_poses = [[0.3, -0.5, 0.18], [0.3, 0.0, 0.18], [0.3, 0.5, 0.18]]
+            self.drawer_j_poses = [0.15, 0.13, 0.17]
+            self.drawer_scale = 0.75
+        elif self.drawer_setting == 2:
+            self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
+            self.drawer_poses = [[0.3, 0.0, 0.18], [0.3, 0.0, 0.45], [0.3, 0.0, 0.72]]
+            self.drawer_j_poses = [0.15, 0.13, 0.17]
+            self.drawer_scale = 0.75
+        else:
+            print("using default drawer setup. change drawer setting for other setup")
+            self.drawer_names = ["drawer"]
+            self.drawer_poses = [[0.3, 0.0, 0.18]]
+            self.drawer_j_poses = [0.15]
+
         self.goal_range_low = np.array([-goal_range / 2, -goal_range / 2, 0])
         self.goal_range_high = np.array([goal_range / 2, goal_range / 2, goal_range])
         with self.sim.no_rendering():
@@ -34,58 +54,51 @@ class Drawer(Task):
     def _create_scene(self) -> None:
         self.sim.create_plane(z_offset=-0.4)
         self.sim.create_table(length=2.5, width=1.2, height=0.4, x_offset=-0.3)
-        self._create_drawer()
-        # self.sim.create_sphere(
-        #     body_name="target",
-        #     radius=self.distance_threshold,
-        #     mass=0.0,
-        #     ghost=True,
-        #     position=np.zeros(3),
-        #     rgba_color=np.array([0.1, 0.9, 0.1, 0.3]),
-        # )
+        self._create_drawers()
 
-    def _create_drawer(self):
-        # self.sim.loadURDF(body_name="door",
-        #                   fileName=self.door_file_path, basePosition=[0.86, 0, 0.45],
-        #                             globalScaling=1, baseOrientation=[0, 180, 0, 1])
-        self.sim.loadURDF(body_name="drawer",
-                          fileName=self.drawer_file_path, basePosition=[0.3, 0.0, 0.18],
-                          globalScaling=1.0, baseOrientation=[0, 180, 0, 1],
-                          useFixedBase=True)
+    def _create_drawers(self):
+        for name, d_pos in zip(self.drawer_names, self.drawer_poses):
+            self.sim.loadURDF(body_name=name,
+                              fileName=self.drawer_file_path, basePosition=d_pos,
+                              globalScaling=self.drawer_scale, baseOrientation=[0, 180, 0, 1],
+                              useFixedBase=True)
 
         random_pos = False
-        self._reset_drawer(random_pos=random_pos)
+        self._reset_drawers(random_pos=random_pos)
 
-    def _reset_drawer(self, random_pos=False):
+    def _reset_drawers(self, random_pos=False):
         # self.sim.get_info("door")
         # if random_pos:
         #     init_door_joint_state = 0.6*random.uniform(0, 1)
         # else:
-        init_drawer_joint_state = 0.15  # 0.7
+        init_drawer_joint_state = 0.15  # make this a list
+        for name, j_pos in zip(self.drawer_names, self.drawer_j_poses):
+            self.sim.set_joint_angle(body=name, joint=0, angle=j_pos)
 
-        self.sim.set_joint_angle(body="door", joint=0, angle=init_drawer_joint_state)
+    def _get_drawer_joint_poses(self):
+        j_poses = []
+        for name in self.drawer_names:
+            j_poses.append(self.sim.get_joint_angle(name, 0))
+        return j_poses
 
-    def _get_drawer_joint_pos(self):
-        j_pos = self.sim.get_joint_angle("door", 0)
-        return j_pos
-
-    def _get_drawer_angle(self):
-        return self._get_drawer_joint_pos()
+    def _get_drawer_angles(self):
+        return self._get_drawer_joint_poses()
 
     def get_obs(self) -> np.ndarray:
         return np.array([])  # no task-specific observation
 
     def get_achieved_goal(self) -> np.ndarray:
         # ee_position = np.array(self.get_ee_position())
-        drawer_joint_pos = self._get_drawer_angle()
-        return np.array([drawer_joint_pos])
+        drawer_joint_poses = self._get_drawer_angles()
+        min_drawer_j = np.min(np.array(drawer_joint_poses))
+        return np.array([min_drawer_j])
 
     def get_goal(self):
         # fixed goal (close drawer_joint)
         return np.array([0.001])
 
     def reset(self) -> None:
-        self._reset_drawer(random_pos=False)
+        self._reset_drawers(random_pos=False)
         # self.sim.set_base_pose("target", self.goal, np.array([0.0, 0.0, 0.0, 1.0]))
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
@@ -99,3 +112,15 @@ class Drawer(Task):
             # return -np.array(d > self.distance_threshold, dtype=np.float32)
         else:
             return -d.astype(np.float32)
+
+    def debug_sphere(self, pos, radius=0.05, color=None):
+        if color is None:
+            color = np.array([0.1, 0.9, 0.1, 0.3])
+        self.sim.create_sphere(
+            body_name="sphere",
+            radius=radius,
+            mass=0.0,
+            ghost=True,
+            position=np.zeros(3),
+            rgba_color=color,
+        )

@@ -408,7 +408,7 @@ class PandaDrawerEnv(RobotTaskEnv):
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: set random init pos here
         robot = Panda(sim, random_init_pos=True, door=True, block_gripper=True, base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
-        task = Drawer(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position, distance_threshold=0.03)  # 0.045
+        task = Drawer(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
             robot,
             task,
@@ -453,20 +453,20 @@ class PandaDrawerMultiEnv(RobotTaskEnv):
         render_height: int = 480,
         render_target_position: Optional[np.ndarray] = None,
         render_distance: float = 1.4,
-        render_yaw: float = 10,  # 45
-        render_pitch: float = -30,
+        render_yaw: float = -10,  # 45
+        render_pitch: float = -10,
         render_roll: float = 0,
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: set random init pos here
         robot = Panda(sim, random_init_pos=True, door=True, block_gripper=True, base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
-        task = DrawerMulti(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position, distance_threshold=0.03)  # 0.045
+        task = DrawerMulti(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
             robot,
             task,
             render_width=render_width,
             render_height=render_height,
-            render_target_position=np.array([-0.7, 0.0, 0.0]),
+            render_target_position=np.array([-0.7, 0.0, 0.5]),
             render_distance=render_distance,
             render_yaw=render_yaw,
             render_pitch=render_pitch,
