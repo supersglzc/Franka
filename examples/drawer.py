@@ -8,7 +8,7 @@ import panda_gym
 import panda_gym.envs
 
 # env_name = "PandaPegInsertionJoints-v3"
-env_name = "PandaDoorJoints-v3"
+env_name = "PandaDrawerJoints-v3"
 render_mode = "human"  # "human", rgb_array
 env = gym.make(env_name, render_mode=render_mode)
 
