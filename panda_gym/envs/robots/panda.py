@@ -78,7 +78,7 @@ class Panda(PyBulletRobot):
                 joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
             )
             # self.neutral_joint_values = np.array([0.00, 0.41, 0.00, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
-            self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])
+            self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])  # from reaching
             # self.neutral_joint_values = np.array([0.00, -0.5, 0.00, -2.2, 0.00, 1.8, 0.79, 0.025, 0.025])
             self.ee_link = 11
         self.fingers_indices = np.array([9, 10])

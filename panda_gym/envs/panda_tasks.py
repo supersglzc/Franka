@@ -458,8 +458,8 @@ class PandaDrawerMultiEnv(RobotTaskEnv):
         render_roll: float = 0,
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
-        # TODO: set random init pos here
-        robot = Panda(sim, random_init_pos=True, door=True, block_gripper=True, base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
+        robot = Panda(sim, random_init_pos=True, door=False, block_gripper=True,
+                      base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
         task = DrawerMulti(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
             robot,

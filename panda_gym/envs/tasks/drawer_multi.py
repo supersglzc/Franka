@@ -24,7 +24,7 @@ class DrawerMulti(Task):
         self.get_ee_position = get_ee_position  # that's a method
 
         # drawer
-        self.drawer_setting = 1
+        self.drawer_setting = 2
         # drawer setup here
 
         self.drawer_joint = 1
@@ -33,13 +33,21 @@ class DrawerMulti(Task):
         if self.drawer_setting == 1:
             self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
             self.drawer_poses = [[0.3, -0.5, 0.18], [0.3, 0.0, 0.18], [0.3, 0.5, 0.18]]
-            self.drawer_j_poses = [0.15, 0.13, 0.17]
+            self.drawer_j_poses = [0.17, 0.17, 0.17]
             self.drawer_scale = 0.75
         elif self.drawer_setting == 2:
             self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
-            self.drawer_poses = [[0.3, 0.0, 0.18], [0.3, 0.0, 0.45], [0.3, 0.0, 0.72]]
-            self.drawer_j_poses = [0.15, 0.13, 0.17]
-            self.drawer_scale = 0.75
+            z_offset = 0.25
+            x_drawer = -0.2
+            self.drawer_poses = [[x_drawer, 0.0, 0.1+z_offset],
+                                 [x_drawer, 0.0, 0.3+z_offset],
+                                 [x_drawer, 0.0, 0.5+z_offset]]
+            self.drawer_j_poses = [0.17, 0.17, 0.17]
+            self.drawer_scale = 0.55
+            # self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
+            # self.drawer_poses = [[0.3, 0.0, 0.18], [0.3, 0.0, 0.45], [0.3, 0.0, 0.72]]
+            # self.drawer_j_poses = [0.17, 0.17, 0.17]
+            # self.drawer_scale = 0.75
         else:
             print("using default drawer setup. change drawer setting for other setup")
             self.drawer_names = ["drawer"]
@@ -53,7 +61,7 @@ class DrawerMulti(Task):
 
     def _create_scene(self) -> None:
         self.sim.create_plane(z_offset=-0.4)
-        self.sim.create_table(length=2.5, width=1.2, height=0.4, x_offset=-0.3)
+        self.sim.create_table(length=2.0, width=1.2, height=0.4, x_offset=-0.5)
         self._create_drawers()
 
     def _create_drawers(self):
@@ -81,15 +89,13 @@ class DrawerMulti(Task):
             j_poses.append(self.sim.get_joint_angle(name, 0))
         return j_poses
 
-    def _get_drawer_angles(self):
-        return self._get_drawer_joint_poses()
 
     def get_obs(self) -> np.ndarray:
         return np.array([])  # no task-specific observation
 
     def get_achieved_goal(self) -> np.ndarray:
         # ee_position = np.array(self.get_ee_position())
-        drawer_joint_poses = self._get_drawer_angles()
+        drawer_joint_poses = self._get_drawer_joint_poses()
         min_drawer_j = np.min(np.array(drawer_joint_poses))
         return np.array([min_drawer_j])
 
@@ -106,12 +112,14 @@ class DrawerMulti(Task):
         return achieved_goal <= 0.001
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
-        d = distance(achieved_goal, desired_goal)
-        if self.reward_type == "sparse":
-            return -achieved_goal
-            # return -np.array(d > self.distance_threshold, dtype=np.float32)
-        else:
-            return -d.astype(np.float32)
+        # d = distance(achieved_goal, desired_goal)
+        return -achieved_goal
+
+        # if self.reward_type == "sparse":
+        #     return -achieved_goal
+        #     # return -np.array(d > self.distance_threshold, dtype=np.float32)
+        # else:
+        #     return -d.astype(np.float32)
 
     def debug_sphere(self, pos, radius=0.05, color=None):
         if color is None:
