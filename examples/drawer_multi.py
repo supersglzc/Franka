@@ -19,6 +19,7 @@ for _ in range(10000):
     observation, reward, terminated, truncated, info = env.step(action)
     time.sleep(1/30)
     print(f"reward: {reward}")
+    print(observation["observation"])
     if terminated or truncated:
         observation, info = env.reset()
 

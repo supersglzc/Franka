@@ -314,6 +314,18 @@ class PyBullet:
 
         return lower, upper
 
+    def get_joint_max_speed(self, body: str, joint: int) -> float:
+        """Get the maximum allowed velocity of the joint of the body.
+
+        Args:
+            body (str): Body unique name.
+            joint (int): joint indices
+
+        Returns:
+            float: joint maximum velocity
+        """
+        return self.physics_client.getJointInfo(self._bodies_idx[body], joint)[11]
+
     def set_base_pose(self, body: str, position: np.ndarray, orientation: np.ndarray) -> None:
         """Set the position of the body.
 

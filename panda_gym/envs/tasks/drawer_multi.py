@@ -24,7 +24,7 @@ class DrawerMulti(Task):
         self.get_ee_position = get_ee_position  # that's a method
 
         # drawer
-        self.drawer_setting = 2
+        self.drawer_setting = 3
         # drawer setup here
 
         self.drawer_joint = 1
@@ -43,6 +43,21 @@ class DrawerMulti(Task):
                                  [x_drawer, 0.0, 0.3+z_offset],
                                  [x_drawer, 0.0, 0.5+z_offset]]
             self.drawer_j_poses = [0.17, 0.17, 0.17]
+            self.drawer_scale = 0.55
+            # self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
+            # self.drawer_poses = [[0.3, 0.0, 0.18], [0.3, 0.0, 0.45], [0.3, 0.0, 0.72]]
+            # self.drawer_j_poses = [0.17, 0.17, 0.17]
+            # self.drawer_scale = 0.75
+        elif self.drawer_setting == 3:
+            self.drawer_names = ["drawer_1", "drawer_2", "drawer_3", "drawer_4"]
+            z_offset = 0.28  # 0.25
+            x_drawer = -0.2
+            y_offset = 0.185
+            self.drawer_poses = [[x_drawer, -y_offset, 0.2+z_offset],
+                                 [x_drawer, -y_offset, 0.4+z_offset],
+                                 [x_drawer, y_offset, 0.2+z_offset],
+                                 [x_drawer, y_offset, 0.4+z_offset]]
+            self.drawer_j_poses = [0.17, 0.17, 0.17, 0.17]
             self.drawer_scale = 0.55
             # self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
             # self.drawer_poses = [[0.3, 0.0, 0.18], [0.3, 0.0, 0.45], [0.3, 0.0, 0.72]]
