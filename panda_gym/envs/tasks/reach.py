@@ -105,6 +105,9 @@ class Reach(Task):
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
         d = distance(achieved_goal, desired_goal)
         if self.reward_type == "sparse":
-            return -np.array(d > self.distance_threshold, dtype=np.float32)
+            if d > self.distance_threshold:
+                return np.array(0, dtype=np.float32)
+            else:
+                return np.array(10, dtype=np.float32)
         else:
             return -d.astype(np.float32)

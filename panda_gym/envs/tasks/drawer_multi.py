@@ -91,7 +91,7 @@ class DrawerMulti(Task):
 
 
     def get_obs(self) -> np.ndarray:
-        return np.array([])  # no task-specific observation
+        return np.array(self._get_drawer_joint_poses())  # no task-specific observation
 
     def get_achieved_goal(self) -> np.ndarray:
         # ee_position = np.array(self.get_ee_position())
@@ -109,17 +109,24 @@ class DrawerMulti(Task):
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
         # d = distance(achieved_goal, desired_goal)
-        return achieved_goal <= 0.001
+        return achieved_goal <= 0.03
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
         # d = distance(achieved_goal, desired_goal)
-        return -achieved_goal
+        # return -achieved_goal
 
         # if self.reward_type == "sparse":
         #     return -achieved_goal
         #     # return -np.array(d > self.distance_threshold, dtype=np.float32)
         # else:
         #     return -d.astype(np.float32)
+        if self.reward_type == "sparse":
+            if achieved_goal <= 0.03:
+                return np.array(10, dtype=np.float32)
+            else:
+                return np.array(0, dtype=np.float32)
+        else:
+            return -achieved_goal
 
     def debug_sphere(self, pos, radius=0.05, color=None):
         if color is None:
