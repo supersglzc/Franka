@@ -340,6 +340,10 @@ class PyBullet:
             bodyUniqueId=self._bodies_idx[body], posObj=position, ornObj=orientation
         )
 
+    def get_quat_euler(self, quaternion):
+        euler = self.physics_client.getQuaternionFromEuler(quaternion)
+        return euler
+
     def set_joint_angles(self, body: str, joints: np.ndarray, angles: np.ndarray) -> None:
         """Set the angles of the joints of the body.
 
