@@ -13,7 +13,7 @@ from panda_gym.envs.tasks.stack import Stack
 from panda_gym.envs.tasks.peg_insertion import PegInsertion
 from panda_gym.envs.tasks.drawer import Drawer
 from panda_gym.envs.tasks.drawer_multi import DrawerMulti
-from panda_gym.envs.tasks.door import Door
+from panda_gym.envs.tasks.cabinet import Cabinet
 from panda_gym.pybullet import PyBullet
 
 
@@ -408,7 +408,7 @@ class PandaDrawerEnv(RobotTaskEnv):
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: set random init pos here
-        robot = Panda(sim, random_init_pos=True, door=True, block_gripper=True, base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
+        robot = Panda(sim, random_init_pos=True, cabinet=True, block_gripper=True, base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
         task = Drawer(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
             robot,
@@ -459,7 +459,7 @@ class PandaDrawerMultiEnv(RobotTaskEnv):
         render_roll: float = 0,
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
-        robot = Panda(sim, random_init_pos=True, door=False, block_gripper=True,
+        robot = Panda(sim, random_init_pos=True, cabinet=False, block_gripper=True,
                       base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
         task = DrawerMulti(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
@@ -475,7 +475,7 @@ class PandaDrawerMultiEnv(RobotTaskEnv):
         )
 
 
-class PandaDoorEnv(RobotTaskEnv):
+class PandaCabinetEnv(RobotTaskEnv):
     """Reach task wih Panda robot.
 
     Args:
@@ -512,9 +512,9 @@ class PandaDoorEnv(RobotTaskEnv):
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: check settings here
-        robot = Panda(sim, random_init_pos=True, door=True, block_gripper=True,
-                      base_position=np.array([-1.2, 0.0, 0.0]), control_type=control_type)
-        task = Door(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
+        robot = Panda(sim, random_init_pos=True, cabinet=True, block_gripper=True,
+                      base_position=np.array([-0.9, 0.0, 0.0]), control_type=control_type)
+        task = Cabinet(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(
             robot,
             task,
