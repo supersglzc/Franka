@@ -15,8 +15,6 @@ class Drawer(Task):
         sim,
         get_ee_position,
         reward_type="sparse",
-        # distance_threshold=0.1,  # not used as goal is to close a drawer
-        goal_range=0.3,
     ) -> None:
         super().__init__(sim)
         self.reward_type = reward_type
@@ -24,10 +22,7 @@ class Drawer(Task):
         self.get_ee_position = get_ee_position
         # drawer
         self.drawer_file_path = MODULE_PATH + "/assets/objects/cabinet/drawer_1.urdf"
-        # door
         self.drawer_joint = 1
-        self.goal_range_low = np.array([-goal_range / 2, -goal_range / 2, 0])
-        self.goal_range_high = np.array([goal_range / 2, goal_range / 2, goal_range])
         with self.sim.no_rendering():
             self._create_scene()
 
@@ -45,24 +40,14 @@ class Drawer(Task):
         # )
 
     def _create_drawer(self):
-        # self.sim.loadURDF(body_name="door",
-        #                   fileName=self.door_file_path, basePosition=[0.86, 0, 0.45],
-        #                             globalScaling=1, baseOrientation=[0, 180, 0, 1])
         self.sim.loadURDF(body_name="drawer",
                           fileName=self.drawer_file_path, basePosition=[0.3, 0.0, 0.18],
                           globalScaling=1.0, baseOrientation=[0, 180, 0, 1],
                           useFixedBase=True)
+        self._reset_drawer()
 
-        random_pos = False
-        self._reset_drawer(random_pos=random_pos)
-
-    def _reset_drawer(self, random_pos=False):
-        # self.sim.get_info("door")
-        # if random_pos:
-        #     init_door_joint_state = 0.6*random.uniform(0, 1)
-        # else:
-        init_drawer_joint_state = 0.15  # 0.7
-
+    def _reset_drawer(self):
+        init_drawer_joint_state = 0.15
         self.sim.set_joint_angle(body="drawer", joint=0, angle=init_drawer_joint_state)
 
     def _get_drawer_joint_pos(self):
@@ -90,12 +75,11 @@ class Drawer(Task):
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
         # d = distance(achieved_goal, desired_goal)
-        return achieved_goal <= 0.001
+        return achieved_goal <= desired_goal
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
         d = distance(achieved_goal, desired_goal)
         if self.reward_type == "sparse":
-            return -achieved_goal
-            # return -np.array(d > self.distance_threshold, dtype=np.float32)
+            return -np.array(d > 0.0, dtype=np.float32)
         else:
             return -d.astype(np.float32)

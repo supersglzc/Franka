@@ -15,18 +15,14 @@ class DrawerMulti(Task):
         sim,
         get_ee_position,
         reward_type="sparse",
-        # distance_threshold=0.1,  # not used as goal is to close a drawer
         goal_range=0.3,
     ) -> None:
         super().__init__(sim)
         self.reward_type = reward_type
-        # self.distance_threshold = distance_threshold
         self.get_ee_position = get_ee_position  # that's a method
 
         # drawer
         self.drawer_setting = 3
-        # drawer setup here
-
         self.drawer_joint = 1
         self.drawer_file_path = MODULE_PATH + "/assets/objects/cabinet/drawer_1.urdf"
 
@@ -85,16 +81,9 @@ class DrawerMulti(Task):
                               fileName=self.drawer_file_path, basePosition=d_pos,
                               globalScaling=self.drawer_scale, baseOrientation=[0, 180, 0, 1],
                               useFixedBase=True)
+        self._reset_drawers()
 
-        random_pos = False
-        self._reset_drawers(random_pos=random_pos)
-
-    def _reset_drawers(self, random_pos=False):
-        # self.sim.get_info("door")
-        # if random_pos:
-        #     init_door_joint_state = 0.6*random.uniform(0, 1)
-        # else:
-        init_drawer_joint_state = 0.15  # make this a list
+    def _reset_drawers(self):
         for name, j_pos in zip(self.drawer_names, self.drawer_j_poses):
             self.sim.set_joint_angle(body=name, joint=0, angle=j_pos)
 
@@ -104,9 +93,8 @@ class DrawerMulti(Task):
             j_poses.append(self.sim.get_joint_angle(name, 0))
         return j_poses
 
-
     def get_obs(self) -> np.ndarray:
-        return np.array(self._get_drawer_joint_poses())  # no task-specific observation
+        return np.array(self._get_drawer_joint_poses())
 
     def get_achieved_goal(self) -> np.ndarray:
         # ee_position = np.array(self.get_ee_position())
@@ -116,27 +104,19 @@ class DrawerMulti(Task):
 
     def get_goal(self):
         # fixed goal (close drawer_joint)
-        return np.array([0.001])
+        return np.array([0.03])
 
     def reset(self) -> None:
-        self._reset_drawers(random_pos=False)
-        # self.sim.set_base_pose("target", self.goal, np.array([0.0, 0.0, 0.0, 1.0]))
+        self._reset_drawers()
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
         # d = distance(achieved_goal, desired_goal)
-        return achieved_goal <= 0.03
+        return achieved_goal <= desired_goal
 
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
-        # d = distance(achieved_goal, desired_goal)
-        # return -achieved_goal
 
-        # if self.reward_type == "sparse":
-        #     return -achieved_goal
-        #     # return -np.array(d > self.distance_threshold, dtype=np.float32)
-        # else:
-        #     return -d.astype(np.float32)
         if self.reward_type == "sparse":
-            if achieved_goal <= 0.03:
+            if achieved_goal <= desired_goal:
                 return np.array(10, dtype=np.float32)
             else:
                 return np.array(0, dtype=np.float32)
