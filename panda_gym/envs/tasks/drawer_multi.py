@@ -38,7 +38,7 @@ class DrawerMulti(Task):
         elif self.drawer_setting == 2:
             self.drawer_names = ["drawer_1", "drawer_2", "drawer_3"]
             z_offset = 0.25
-            x_drawer = -0.2
+            x_drawer = -0.35
             self.drawer_poses = [[x_drawer, 0.0, 0.1+z_offset],
                                  [x_drawer, 0.0, 0.3+z_offset],
                                  [x_drawer, 0.0, 0.5+z_offset]]
@@ -51,7 +51,7 @@ class DrawerMulti(Task):
         elif self.drawer_setting == 3:
             self.drawer_names = ["drawer_1", "drawer_2", "drawer_3", "drawer_4"]
             z_offset = 0.28  # 0.25
-            x_drawer = -0.2
+            x_drawer = -0.35
             y_offset = 0.185
             self.drawer_poses = [[x_drawer, -y_offset, 0.2+z_offset],
                                  [x_drawer, -y_offset, 0.4+z_offset],
