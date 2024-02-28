@@ -224,7 +224,10 @@ class PegInsertion(Task):
             d_2 = distance(achieved_goal, desired_goal[-3:])
             d_close = min(d_1, d_2)
             if self.reward_type == "sparse":
-                return -np.array(d_close > self.distance_threshold, dtype=np.float32)
+                if d_close > self.distance_threshold:
+                    return np.array(0, dtype=np.float32)
+                else:
+                    return np.array(10, dtype=np.float32)
             else:
                 return -d_close.astype(np.float32)
         else:
