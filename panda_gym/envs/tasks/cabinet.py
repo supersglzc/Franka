@@ -92,7 +92,7 @@ class Cabinet(Task):
     def compute_reward(self, achieved_goal, desired_goal, info: Dict[str, Any]) -> np.ndarray:
         d = distance(achieved_goal, desired_goal)
         if self.reward_type == "sparse":
-            rew = 1 if self.is_success(achieved_goal, desired_goal) else 0
+            rew = 10 if self.is_success(achieved_goal, desired_goal) else 0
             return np.array([rew])
         else:
             # opening distance measured in joint-space of cabinet
