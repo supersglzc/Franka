@@ -55,7 +55,7 @@ class Cabinet(Task):
     def _create_cabinet(self):
         cabinet_ori = [0, 0, math.pi]  # math.pi/2
         self.sim.loadURDF(body_name=self.cabinet_body,
-                          fileName=self.cabinet_file_path, basePosition=[-0.1, 0.0, 0.43],
+                          fileName=self.cabinet_file_path, basePosition=[-0.15, 0.0, 0.50],  # -0.1, 0.0, 0.43
                           globalScaling=1, baseOrientation=self.sim.get_quat_euler(cabinet_ori),
                           useFixedBase=True)
 

@@ -64,7 +64,16 @@ class Panda(PyBulletRobot):
                 joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
                 joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
             )
-            self.neutral_joint_values = np.array([-0.2, 0.41, 0.0, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
+            # self.neutral_joint_values = np.array([-0.2, 0.41, 0.0, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
+
+            # little knick
+            # self.neutral_joint_values = np.array([-0.2, -0.3, 0.0, -2.3, 0.00, 2.0, 0.79, 0.00, 0.00])
+
+            self.neutral_joint_values = np.array([-0.2, -0.5, 0.0, -2.6, 0.00, 2.2, 0.79, 0.00, 0.00])
+            
+            # side init
+            # self.neutral_joint_values = np.array([-0.9, 0.5, 0.5, -1.5, 0.9, 1.6, 0.79, 0.00, 0.00])
+
             # self.neutral_joint_values = np.array([0.00, -1.5, 0.00, -3, 0.00, 2.26, 0.79, 0.00, 0.0])
             self.ee_link = 11
         else:
