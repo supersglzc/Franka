@@ -512,7 +512,7 @@ class PandaCabinetEnv(RobotTaskEnv):
     ) -> None:
         sim = PyBullet(render_mode=render_mode, renderer=renderer)
         # TODO: check settings here
-        robot = Panda(sim, random_init_pos=True, cabinet=True, block_gripper=True,
+        robot = Panda(sim, random_init_pos=False, cabinet=True, block_gripper=True,
                       base_position=np.array([-0.9, 0.0, 0.0]), control_type=control_type)
         task = Cabinet(sim, reward_type=reward_type, get_ee_position=robot.get_ee_position)  # 0.045
         super().__init__(

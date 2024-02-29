@@ -62,7 +62,7 @@ class Panda(PyBulletRobot):
                 base_position=base_position,
                 action_space=action_space,
                 joint_indices=np.array([0, 1, 2, 3, 4, 5, 6, 9, 10]),
-                joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0]),
+                joint_forces=np.array([87.0, 87.0, 87.0, 87.0, 12.0, 120.0, 120.0, 170.0, 170.0])*100,
             )
             # self.neutral_joint_values = np.array([-0.2, 0.41, 0.0, -1.85, 0.00, 2.26, 0.79, 0.00, 0.00])
 
