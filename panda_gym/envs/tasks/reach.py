@@ -38,9 +38,20 @@ class Reach(Task):
         self._create_obstacle()
 
     def _create_obstacle(self):
+        self.ob_poses = [
+            [-0.22, 0.03, 0.7],
+            [-0.22, 0.03, 0.7],
+            # [0.5, -0.2, 0.2],
+            # [0.5, 0.2, 0.2],
+        ]
+        self.ob_extents = [
+            [0.02, 0.005, 0.2],
+            [0.02, 0.2, 0.005],
+            # [0.05, 0.15, 0.05],
+        ]
         # self.ob_poses = [
-        #     [-0.15, 0, 0.55],
-        #     [-0.15, 0, 0.55],
+        #     [-0.22, 0.03, 0.6],
+        #     [-0.22, 0.03, 0.6],
         #     # [0.5, -0.2, 0.2],
         #     # [0.5, 0.2, 0.2],
         # ]
@@ -49,17 +60,6 @@ class Reach(Task):
         #     [0.05, 0.2, 0.005],
         #     # [0.05, 0.15, 0.05],
         # ]
-        self.ob_poses = [
-            [-0.25, 0, 0.65],
-            [-0.25, 0, 0.65],
-            # [0.5, -0.2, 0.2],
-            # [0.5, 0.2, 0.2],
-        ]
-        self.ob_extents = [
-            [0.01, 0.005, 0.15],
-            [0.01, 0.15, 0.005],
-            # [0.05, 0.15, 0.05],
-        ]
         for pos, ext in zip(self.ob_poses, self.ob_extents):
             self.create_cube(position=pos,
                         halfExtents=ext,
@@ -106,7 +106,8 @@ class Reach(Task):
         """Randomize goal."""
         # goal = self.np_random.uniform(self.goal_range_low, self.goal_range_high)
         # print(self.goal_range_low, self.goal_range_high, goal)
-        goal = np.array([0.05, 0, 0.5])
+        goal = np.array([-0.05, 0.03, 0.65])
+        # goal = np.array([0.05, 0, 0.5])
         return goal
 
     def is_success(self, achieved_goal: np.ndarray, desired_goal: np.ndarray) -> np.ndarray:
