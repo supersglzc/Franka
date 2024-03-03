@@ -39,8 +39,8 @@ class Reach(Task):
 
     def _create_obstacle(self):
         self.ob_poses = [
-            [-0.22, 0.03, 0.7],
-            [-0.22, 0.03, 0.7],
+            [-0.22, 0.0, 0.67],
+            [-0.22, 0.0, 0.67],
             # [0.5, -0.2, 0.2],
             # [0.5, 0.2, 0.2],
         ]
@@ -106,7 +106,7 @@ class Reach(Task):
         """Randomize goal."""
         # goal = self.np_random.uniform(self.goal_range_low, self.goal_range_high)
         # print(self.goal_range_low, self.goal_range_high, goal)
-        goal = np.array([-0.05, 0.03, 0.65])
+        goal = np.array([-0.05, 0.0, 0.65])
         # goal = np.array([0.05, 0, 0.5])
         return goal
 
